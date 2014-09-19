@@ -144,6 +144,67 @@ XBeeOutNode.prototype.close = function() {
     util.log("XBeeOutNode closed");
 }
 
+
+
+
+/**
+ * XBeeInOutNode - Provides an in/out connection to an XBEE network through an 
+ *                XBee module connected to the computer's serial port. 
+ *
+ * The address of the XBee module to send the message to can either be set in the 
+ * node's web UI configuration or passed as a parameter in msg.destination. 
+ * Only the msg.payload is sent to the destination XBee. The received message will be
+ * send out over the outbound connection of the node.
+ *
+ * XBee addresses are specified as base64 Hex strings, e.g. 0013a200408b9437.
+ *
+ **/
+function XBeeInOutNode(n) {      
+    RED.nodes.createNode(this,n);
+    var node = this;
+    this.destination = n.destination;
+    this.serial = n.serial;
+    this.serialConfig = RED.nodes.getNode(this.serial);
+        
+    if (node.serialConfig) {
+
+        try {
+		        node.log(util.format("Get XBee on %s:%s from pool...", this.serialConfig.serialport, this.serialConfig.serialbaud));
+    
+            node.xbee = xbeePool.get(
+              node.serialConfig.serialport,
+            	node.serialConfig.serialbaud
+            ).xbee; // ToDo: I'm not convinced that using a wrapper object is desirable or necessary
+            
+        } catch(err) {
+        		node.log(util.format("Failed to get XBee on %s", this.serialConfig.serialport));
+            this.error(err);
+            return;
+        }
+        
+        node.on("input",function(msg) {
+          addr = node.destination || msg.destination; // || 0013a20040aa18df  [0x00, 0x13, 0xa2, 0x00, 0x40, 0xaa, 0x18, 0xdf]
+          if (addr) {
+          	node.log(util.format("Send %s to %s, using %s", msg.payload, addr, util.inspect(msg)));
+          	xnode = node.xbee.addNode(node.xbee.tools.hexStr2bArr(addr));
+          	xnode.getAnalogPin("AD1",function(err,res){node.log("err="+err+",resp="+res); var msg={payload:res,error:err}; node.send(msg);});
+          } else {
+            node.error("missing XBee destination address");
+          }
+        });
+
+    } else {
+        node.error("missing serial config");
+    }
+
+}
+
+XBeeOutNode.prototype.close = function() {
+    // Called when the node is shutdown - eg on redeploy.
+    // Allows ports to be closed, connections dropped etc.
+    // eg: this.client.disconnect();
+    util.log("XBeeOutNode closed");
+}
 // Register the nodes by name. This must be called before overriding any of the Node functions.
 console.log("Registering xbee in node");
 RED.nodes.registerType("xbee in", XBeeInNode);
