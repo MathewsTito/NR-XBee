@@ -102,7 +102,7 @@
         },
         color:"#088247",
         inputs:1,
-        outputs:0,
+        outputs:1,
         icon: "serial.png",
         align: "right",
         label: function() {
@@ -117,17 +117,38 @@
 </script>
 
 <script type="text/x-red" data-template-name="xbee inout">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
     <div class="form-row node-input-serial">
-        <label for="node-input-serial"><i class="icon-bullhorn"></i> Serial Port</label>
+        <label for="node-input-serial"><i class="icon-bullhorn"></i> Serial</label>
         <input type="text" id="node-input-serial">
     </div>
     <div class="form-row">
         <label for="node-input-destination"><i class="icon-road"></i> Destination</label>
         <input type="text" id="node-input-destination" placeholder="XBee Address e.g. 0013a200408b9437">
     </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+    <div class="form-row node-input-pin">
+        <label for="node-input-pin"><i class="icon-bullhorn"></i> Pin</label>
+        <select type="text" id="node-input-pin" style="width: 100px;">
+						<option value="AD0">Analog 0</option>            
+						<option value="AD1">Analog 1</option>
+            <option value="AD2">Analog 2</option>
+            <option value="AD3">Analog 3</option>
+						<option value="DIO0">Digital I/O 0</option>            
+						<option value="DIO1">Digital I/O 1</option>
+            <option value="DIO2">Digital I/O 2</option>
+            <option value="DIO3">Digital I/O 3</option>
+            <option value="DIO4">Digital I/O 4</option>
+						<option value="DIO5">Digital I/O 5</option>
+						<option value="DIO6">Digital I/O 6</option>
+						<option value="DIO7">Digital I/O 7</option>
+						<option value="DIO8">Digital I/O 8</option>
+						<option value="DIO9">Digital I/O 9</option>
+						<option value="DIO10">Digital I/O 10</option>
+						<option value="DIO11">Digital I/O 11</option>
+         </select>
     </div>
     <div class="form-tips">
     	Tip: leave destination blank and <b>msg.payload</b> will be sent to the XBee with 
@@ -136,7 +157,6 @@
     </div>
 
 </script>
-
 <script type="text/x-red" data-help-name="xbee inout">
 	<p>Provides an outbound connection to an XBEE network through an XBee module connected to this computer's serial port. </p>
 	<p>The address of the XBee module to send the message to can either be set in this node's configuration or passed as a parameter 
@@ -150,6 +170,7 @@
         defaults: {
 	    	name: {name:""},
             	serial: {type:"serial-port",required:true},
+							pin: {name:" ",required:true},
             	destination: {name:""}
         },
         color:"#088247",
@@ -167,3 +188,5 @@
     });
 
 </script>
+
+

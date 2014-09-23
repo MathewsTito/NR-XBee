@@ -164,6 +164,8 @@ function XBeeInOutNode(n) {
     var node = this;
     this.destination = n.destination;
     this.serial = n.serial;
+		this.pin = n.pin;
+		//this.coordinator = RED.nodes.getNode(this.coordinator);
     this.serialConfig = RED.nodes.getNode(this.serial);
         
     if (node.serialConfig) {
@@ -185,9 +187,13 @@ function XBeeInOutNode(n) {
         node.on("input",function(msg) {
           addr = node.destination || msg.destination; // || 0013a20040aa18df  [0x00, 0x13, 0xa2, 0x00, 0x40, 0xaa, 0x18, 0xdf]
           if (addr) {
-          	node.log(util.format("Send %s to %s, using %s", msg.payload, addr, util.inspect(msg)));
+          	node.log(util.format("Send %s to %s, using %s", msg.payload, addr+":"+node.pin, util.inspect(msg)));
           	xnode = node.xbee.addNode(node.xbee.tools.hexStr2bArr(addr));
-          	xnode.getAnalogPin("AD1",function(err,res){node.log("err="+err+",resp="+res); var msg={payload:res,error:err}; node.send(msg);});
+						if (node.pin.charAt(0) === 'A') {
+          		xnode.getAnalogPin(node.pin,function(err,res){node.log("err="+err+",resp="+res); var msg={payload:res,error:err}; node.send(msg);});
+						} else {
+							xnode.getDigitalPin(node.pin,function(err,res){node.log("err="+err+",resp="+res); var msg={payload:res,error:err}; node.send(msg);});
+						}
           } else {
             node.error("missing XBee destination address");
           }
@@ -199,17 +205,30 @@ function XBeeInOutNode(n) {
 
 }
 
-XBeeOutNode.prototype.close = function() {
+XBeeInOutNode.prototype.close = function() {
     // Called when the node is shutdown - eg on redeploy.
     // Allows ports to be closed, connections dropped etc.
     // eg: this.client.disconnect();
     util.log("XBeeOutNode closed");
 }
+
+
+
+function XBeeConfigNode(n) {  
+		RED.nodes.createNode(this,n);
+		var node = this;
+		this.serial = n.serial;
+}
+
+
 // Register the nodes by name. This must be called before overriding any of the Node functions.
 console.log("Registering xbee in node");
 RED.nodes.registerType("xbee in", XBeeInNode);
 
 RED.nodes.registerType("xbee out", XBeeOutNode);
+
+RED.nodes.registerType("xbee inout", XBeeInOutNode);
+
 
 
 /**
