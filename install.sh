@@ -1,5 +1,5 @@
 #!/bin/sh 
-NR_HOME=~/Development/node/node-red
+NR_HOME=~/nodered/node-red-0.8.1
 FE_NODES=$NR_HOME/nodes/mathewstito-nodes
 mkdir -p $FE_NODES
 cp 55-xbee.* $FE_NODES
